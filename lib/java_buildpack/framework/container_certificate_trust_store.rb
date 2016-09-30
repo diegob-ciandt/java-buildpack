@@ -88,11 +88,9 @@ module JavaBuildpack
       end
 
       def add_custom_certificate(certificate, index)
-        @logger.debug { "Adding certificate\n#{file.to_path}" }
-
-        file = File.new(custom_certs_path + '/' + certificate)
+        puts "-----> DEBUG - Certificate: #{certificate}"
         shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
-              "-file #{file.to_path} -alias certificate-#{index}"
+              "-file #{certificate} -alias certificate-#{index}"
       end
 
       def ca_certificates
