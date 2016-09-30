@@ -45,7 +45,7 @@ module JavaBuildpack
       def compile
         puts '-----> Creating TrustStore with container certificates'
 
-        puts '-----> DEBUG - Droplet Root: #{@droplet.root}'
+        puts "-----> DEBUG - Droplet Root: #{@droplet.root}"
 
         resolved_certificates = certificates
         with_timing(caption(resolved_certificates)) do
@@ -120,25 +120,6 @@ module JavaBuildpack
         certificates
       end
 
-      def custom_certificates
-        certificates = []
-
-        certificate = nil
-        ca_certificates.each_line do |line|
-          if line =~ /BEGIN CERTIFICATE/
-            certificate = line
-          elsif line =~ /END CERTIFICATE/
-            certificate += line
-            certificates << certificate
-            certificate = nil
-          elsif !certificate.nil?
-            certificate += line
-          end
-        end
-
-        certificates
-      end
-
       def id(count)
         "#{self.class.to_s.dash_case}=#{count}"
       end
@@ -164,7 +145,7 @@ module JavaBuildpack
       end
 
       def custom_certs_path
-        @droplet.root + '/WEB-INF/classes/config/certs'
+        @droplet.root + 'WEB-INF/classes/config/certs'
       end
 
       def trust_store_type
