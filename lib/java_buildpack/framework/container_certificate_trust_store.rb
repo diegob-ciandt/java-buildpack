@@ -28,14 +28,11 @@ module JavaBuildpack
     # Encapsulates the functionality for contributing container-based certificates to an application.
     class ContainerCertificateTrustStore < JavaBuildpack::Component::BaseComponent
 
-      def CONTEXT
-
       # Creates an instance
       #
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ContainerCertificateTrustStore
-        CONTEXT = context
         super(context)
       end
 
@@ -48,14 +45,24 @@ module JavaBuildpack
       def compile
         puts '-----> Creating TrustStore with container certificates'
 
-        puts '-----> DEBUG - Context: #{CONTEXT}'
-
         puts '-----> DEBUG - Droplet Root: #{@droplet.root}'
 
         resolved_certificates = certificates
         with_timing(caption(resolved_certificates)) do
           FileUtils.mkdir_p trust_store.parent
           resolved_certificates.each_with_index { |certificate, index| add_certificate certificate, index }
+        end
+
+        custom_certificates = []
+        Dir.foreach( custom_certs_path ) do |item|
+          next if item == '.' or item == '..'
+          # do work on real items
+          custom_certificates << item
+        end
+
+        with_timing(caption_custom(custom_certificates)) do
+          FileUtils.mkdir_p trust_store.parent
+          custom_certificates.each_with_index { |certificate, index| add_certificate certificate, index }
         end
       end
 
@@ -90,7 +97,30 @@ module JavaBuildpack
         "Adding #{resolved_certificates.count} certificates to #{trust_store.relative_path_from(@droplet.root)}"
       end
 
+      def caption_custom(custom_certificates)
+        "Adding custom configured #{custom_certificates.count} certificates to #{trust_store.relative_path_from(@droplet.root)}"
+      end
+
       def certificates
+        certificates = []
+
+        certificate = nil
+        ca_certificates.each_line do |line|
+          if line =~ /BEGIN CERTIFICATE/
+            certificate = line
+          elsif line =~ /END CERTIFICATE/
+            certificate += line
+            certificates << certificate
+            certificate = nil
+          elsif !certificate.nil?
+            certificate += line
+          end
+        end
+
+        certificates
+      end
+
+      def custom_certificates
         certificates = []
 
         certificate = nil
@@ -131,6 +161,10 @@ module JavaBuildpack
 
       def trust_store
         @droplet.sandbox + 'truststore.jks'
+      end
+
+      def custom_certs_path
+        @droplet.root + '/WEB-INF/classes/config/certs'
       end
 
       def trust_store_type
