@@ -62,7 +62,7 @@ module JavaBuildpack
 
         with_timing(caption_custom(custom_certificates)) do
           FileUtils.mkdir_p trust_store.parent
-          custom_certificates.each_with_index { |certificate, index| add_certificate certificate, 'custom_' + index }
+          custom_certificates.each_with_index { |certificate, index| add_certificate certificate, 'custom_' + index.to_s }
         end
       end
 
