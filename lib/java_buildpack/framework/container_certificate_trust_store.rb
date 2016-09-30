@@ -60,7 +60,7 @@ module JavaBuildpack
 
         with_timing(caption_custom(custom_certificates)) do
           FileUtils.mkdir_p trust_store.parent
-          custom_certificates.each_with_index { |certificate, index| add_certificate certificate, 'custom_' + index.to_s }
+          custom_certificates.each_with_index { |certificate, index| add_custom_certificate certificate, 'custom_' + index.to_s }
         end
       end
 
@@ -87,9 +87,10 @@ module JavaBuildpack
               "-file #{file.to_path} -alias certificate-#{index}"
       end
 
-      def add_custom_certificate(file, index)
+      def add_custom_certificate(certificate, index)
         @logger.debug { "Adding certificate\n#{file.to_path}" }
 
+        file = File.new(certificate)
         shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
               "-file #{file.to_path} -alias certificate-#{index}"
       end
