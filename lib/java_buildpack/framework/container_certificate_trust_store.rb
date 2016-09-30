@@ -58,6 +58,7 @@ module JavaBuildpack
           .java_opts
           .add_system_property('javax.net.ssl.trustStore', trust_store)
           .add_system_property('javax.net.ssl.trustStorePassword', password)
+          .add_system_property('javax.net.ssl.trustStoreType', trust_store_type)
       end
 
       private
@@ -123,6 +124,10 @@ module JavaBuildpack
 
       def trust_store
         @droplet.sandbox + 'truststore.jks'
+      end
+
+      def trust_store_type
+        'JKS'
       end
 
       def write_certificate(certificate)
