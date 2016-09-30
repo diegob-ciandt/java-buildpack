@@ -45,8 +45,6 @@ module JavaBuildpack
       def compile
         puts '-----> Creating TrustStore with container certificates'
 
-        puts "-----> DEBUG - Droplet Root: #{@droplet.root}"
-
         resolved_certificates = certificates
         with_timing(caption(resolved_certificates)) do
           FileUtils.mkdir_p trust_store.parent
@@ -85,6 +83,13 @@ module JavaBuildpack
         @logger.debug { "Adding certificate\n#{certificate}" }
 
         file = write_certificate certificate
+        shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
+              "-file #{file.to_path} -alias certificate-#{index}"
+      end
+
+      def add_custom_certificate(file, index)
+        @logger.debug { "Adding certificate\n#{file.to_path}" }
+
         shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
               "-file #{file.to_path} -alias certificate-#{index}"
       end
