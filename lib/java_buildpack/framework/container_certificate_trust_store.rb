@@ -28,11 +28,14 @@ module JavaBuildpack
     # Encapsulates the functionality for contributing container-based certificates to an application.
     class ContainerCertificateTrustStore < JavaBuildpack::Component::BaseComponent
 
+      def CONTEXT
+
       # Creates an instance
       #
       # @param [Hash] context a collection of utilities used the component
       def initialize(context)
         @logger = JavaBuildpack::Logging::LoggerFactory.instance.get_logger ContainerCertificateTrustStore
+        CONTEXT = context
         super(context)
       end
 
@@ -44,6 +47,10 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         puts '-----> Creating TrustStore with container certificates'
+
+        puts '-----> DEBUG - Context: #{CONTEXT}'
+
+        puts '-----> DEBUG - Droplet Root: #{@droplet.root}'
 
         resolved_certificates = certificates
         with_timing(caption(resolved_certificates)) do
