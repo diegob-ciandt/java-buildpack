@@ -88,7 +88,7 @@ module JavaBuildpack
       end
 
       def add_custom_certificate(certificate, index)
-        certificate = custom_certs_path() + '/' + certificate
+        certificate = @droplet.root + 'WEB-INF/classes/config/certs/' + certificate
         puts "-----> DEBUG - Certificate: #{certificate}"
         shell "#{keytool} -importcert -noprompt -keystore #{trust_store} -storepass #{password} " \
               "-file #{certificate} -alias certificate-#{index}"
